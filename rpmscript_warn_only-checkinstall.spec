@@ -22,6 +22,33 @@ Girar builder works wrong. It is expected that this test (represented
 by this package) fails in Girar (when it is installed at the install
 check stage).
 
+%install
+# FIXME: A trivial %%install is needed to mkdir %%buildroot, which is required.
+# It's a workaround for the following issue: to find autodeps of the scriptlet,
+# rpm-build-4.0.4-alt170 wants to write its code to a file under
+# %%buildroot in generateDepends() and saveInstScript() (in build/files.c):
+#
+# error: cannot write /usr/src/tmp/rpmscript_warn_only-pre-checkinstall-buildroot/.pre:rpmscript_warn_only-pre-checkinstall
+#
+# but fails to do so if %%buildroot has not been created; then it ignores
+# this failure and doesn't generate additional deps from the scriptlet.
+# The only deps added to the package are "Requires(interp,pre): /bin/sh" then
+# (if it's a %%pre scriptlet) by parseScript() (from build/parseScript.c):
+#
+#    if (pkg->autoReq && *pkg->autoReq)
+#    (void) addReqProv(spec, pkg->header, (tagflags | RPMSENSE_INTERP), progArgv[0], NULL, 0);
+#
+# which are then printed as:
+#
+# Requires(interp): /bin/sh
+# Requires(pre): /bin/sh
+#
+# Probably, a fix would be not ignore the failure to write the script to a file
+# (because in this case the expectations on how rpm-build works are broken)\
+# and to automatically create the dir if needed (asin this case)--so that
+# existing packages don't fail to build with the "fixed@ rpm-build.
+mkdir %buildroot
+
 %@scriptlet@
 exit 1
 
