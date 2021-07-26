@@ -8,7 +8,7 @@ License: MIT
 Group: System/Configuration/Packaging
 Url: http://git.altlinux.org/people/imz/packages/rpmscript_warn_only-checkinstall.git
 
-#BuildArch: noarch
+BuildArch: noarch
 
 %description
 A non-zero exit status of a scriptlet can be either a warning only or
